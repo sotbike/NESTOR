@@ -9,9 +9,7 @@ Outcomes:
 Primary: 
 1. Trifecta rates (concomitant achievement of no complications, negative surgical margins and IT < 20 min or ΔeGFR < 10%): OR (odds ratio)
 
-
 Secondary: 
-
 2a. Major complication rates (defined as Clavien - Dindo ≥ III): OR (odds ratio)
 2b. Minor complication rates (defined as Clavien - Dindo ≤ II): OR (odds ratio)
 2c. Positive surgical margin (PSM) rates: OR (odds ratio)
