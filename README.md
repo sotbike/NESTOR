@@ -1,41 +1,29 @@
-# Hypoglycemia rates & glycemic control after RYGB vs. LSG
+# Trifecta rates & comparative analysis of severe - mild complications, PSM, ischemia duration, and postoperative renal function after RPN/RAPN vs. OPN
 
-Study title: Hypoglycemia rates and glycemic hormonal response after laparoscopic Roux-en-Y gastric bypass versus sleeve gastrectomy. A meta-analysis of comparative studies.
+Study title: Comparative investigation of therapeutic efficacy in tumor resection between robotic and open partial nephrectomy: A meta-analysis supplemented by time-series and quality-based meta-regression.
 
 Computational procedure: Variables were divided into primary and secondary, and then analyzed by grouping studies for each outcome.
 
 Outcomes: 
 Primary: 
-1a. Hypoglycemia rates (OGTT, MMTT, CGM, Questionnaires): RR (relative risk)
-1b. Fasting glucose & insulin: MD (mean difference; mg/dl & pmol/l)
-1c. Change in glucose & insulin from baseline: MD (mean difference; mg/dl & pmol/l)
-1d. OGTT: 1 & 2hr glucose & insulin: MD (mean difference; mg/dl & pmol/l)
-1e. OGTT: Change in 1 & 2hr glucose & insulin from baseline: MD (mean difference; mg/dl & pmol/l)
+1. Trifecta rates (concomitant achievement of no complications, negative surgical margins and IT < 20 min or ΔeGFR < 10%): OR (odds ratio)
+
 
 Secondary: 
-2a. Male patients: OR (odds ratio)
-2b. Change in body weight (BW): MD (mean difference; Kg)
-2c. Change in BMI: MD (mean difference; Kg/m^2)
-2d. Excess body weight loss (EBWL): MD (mean difference; %)
-2e. Change in waist circumference (WC): MD (mean difference; cm)
-2f. HbA1c: MD (mean difference; %)
-2g. HOMA-IR (insulin resistance score) & change from baseline: MD (mean difference)
-2h. Average 10-day hypoglycemic (HG) events: MD (mean difference)
-2i. OGTT: Peak glycemia: MD (mean difference; mg/dl)
-2j. OGTT: Time to peak glycemia: MD (mean difference; mg/dl)
-2k. OGTT: Nadir glycemia: MD (mean difference; mg/dl)
-2l. OGTT: Peak - Nadir glycemia range: MD (mean difference; mg/dl)
-2m. Postoperative C-peptide levels & change from baseline: MD (mean difference; ng/ml)
-2n. 1hr / fasting glucose & insulin ratios (& changes from baseline): MD (mean difference)
-2o. 1hr / 2hr glucose & insulin ratios (& changes from baseline): MD (mean difference)
+2a. Major complication rates (defined as Clavien - Dindo ≥ III): OR (odds ratio)
+2b. Minor complication rates (defined as Clavien - Dindo ≤ II): OR (odds ratio)
+2c. Positive surgical margin (PSM) rates: OR (odds ratio)
+2d. Ischemia time (IT): MD (mean difference; min)
+2e. Change from baseline in eGFR (ΔeGFR): MD (mean difference; ml/min/1.73m^2)
+2f. Change from baseline in serum creatinine levels (ΔCreatinine): MD (mean difference; mg/dl)
 
 
 Included items: Individual study data (“.csv” files) & R code (“.txt” files).
 
-Meta-analysis (MA): R code is included for the implementation of a random effects model with the Hartung & Knapp modification for MD, and Mantel–Haenszel method for RR and OR; subgroups: studies published before & after 2018, studies with & without patient matching, studies with & without DM2 patients, stratification of studies according to ROBINS-I tool (Low - Moderate - Serious - Critical).
+Meta-analysis (MA): R code is included for the implementation of a random effects model with the Hartung & Knapp modification for MD, and Mantel–Haenszel method for OR; subgroups: trifecta definitions according IT & eGFR, studies published before & after 2018, studies with & without patient matching, mulicenter & single-center studies, stratification of studies according to ROBINS-I tool (Low - Moderate - Serious).
 
 Meta-regression analysis (MRA): R code is included for the implementation of a random effects model, using the restricted maximum likelihood (REML) estimation; moderators: year of publication, number of quality stars assigned according to the Newcastle - Ottawa Scale (NOS).
 
-Sensitivity analysis (SA): As SA we defined the exclusion of a single study during subgroup analysis (SGA).
+Sensitivity analysis (SA): As SA we defined the exclusion of studies with a CI95% range greater than 2 SD of the original study set CI95% ranges.
 
 Instructions (for the replication of results): Create a desktop folder named “Data” and save the “.csv” files with original data, ensuring to specify the correct absolute/relative paths for your system. The code generates desktop folders with relevant names for storing derived data and plots.
