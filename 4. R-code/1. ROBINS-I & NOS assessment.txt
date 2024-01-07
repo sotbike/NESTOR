@@ -1,5 +1,8 @@
 ############################################## ROBINS-I PLOTS #######################################################
 
+# First we import the ROBINS dataset from the "Data" folder on desktop
+ROBINS<-read.csv("C:/Users/sotbi/Desktop/Data/ROBINS.csv", sep=";", header=TRUE)
+
 # Now we will use the ggplot2 & robvis (development) packages to visualize the quality assessment
 install.packages("ggplot2")
 library(ggplot2)
