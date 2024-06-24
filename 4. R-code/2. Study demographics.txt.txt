@@ -603,11 +603,11 @@ plot <- ggplot(dset) +
   ) +
   annotate(
     "text", x = x_min, y = -1, label = "Moderate",
-    hjust = -0.15, vjust = 1, color = "rosybrown4", size = 5
+    hjust = -0.15, vjust = 0.5, color = "rosybrown4", size = 5
   ) +
   annotate(
-    "text", x = x_min, y = -1, label = "Serious",
-    hjust = -0.15, vjust = 2.5, color = "tomato", size = 5
+    "text", x = x_min, y = -2, label = "Serious",
+    hjust = -0.15, vjust = 0.5, color = "tomato", size = 5
   )
 print(plot)
 dev.off()
