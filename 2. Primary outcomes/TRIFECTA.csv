@@ -1,0 +1,16 @@
+label;study;year;country;center;matching;stars;robins;post2018;definition;start;end;evexp;nonevexp;nexp;evctrl;nonevctrl;nctrl
+1426;Acar et al. 2015;2015;Turkey;Single-center studies;Studies without patient matching;7;Studies with ROBINS-I: Moderate;Studies published before 2018;Trifecta defined by IT;1/5/2010;31/12/2014;45;14;59;57;17;74
+1653;Audige et al. 2022;2022;France;Multicenter studies;Studies without patient matching;7;Studies with ROBINS-I: Moderate;Studies published after 2018;Trifecta defined by IT;1/1/2007;31/12/2019;147;54;201;139;65;204
+1410;Bianchi et al. 2020;2020;Italy;Single-center studies;Studies without patient matching;7;Studies with ROBINS-I: Moderate;Studies published after 2018;Trifecta defined by IT;1/1/2006;31/12/2017;58;25;83;119;124;243
+1026;Chang et al. 2018;2018;Korea;Multicenter studies;Studies with patient matching;8;Studies with ROBINS-I: Low;Studies published after 2018;Trifecta defined by IT;1/1/2006;31/12/2012;75;47;122;79;43;122
+1726;Gandi et al. 2022;2022;Italy;Single-center studies;Studies with patient matching;8;Studies with ROBINS-I: Low;Studies published after 2018;Trifecta defined by eGFR;1/1/2014;31/12/2019;40;31;71;15;56;71
+1040;Ghali et al. 2019;2019;USA;Single-center studies;Studies without patient matching;6;Studies with ROBINS-I: Moderate;Studies published after 2018;Trifecta defined by eGFR;1/7/2008;30/6/2016;28;31;59;31;60;91
+1400;Ghavimi et al. 2021;2021;Canada;Multicenter studies;Studies without patient matching;7;Studies with ROBINS-I: Moderate;Studies published after 2018;Trifecta defined by eGFR;1/1/2011;31/10/2018;133;151;284;395;351;746
+1748;Hoeh et al. 2023;2023;Germany;Single-center studies;Studies with patient matching;7;Studies with ROBINS-I: Moderate;Studies published after 2018;Trifecta defined by IT;1/1/2003;31/1/2021;87;47;134;261;220;481
+1735;Kowalewski et al. 2023;2023;Germany;Single-center studies;Studies with patient matching;9;Studies with ROBINS-I: Low;Studies published after 2018;Trifecta defined by eGFR;1/1/2020;1/1/2022;20;5;25;18;7;25
+1537;Maurice et al. 2017;2017;USA;Single-center studies;Studies without patient matching;6;Studies with ROBINS-I: Serious;Studies published before 2018;Trifecta defined by eGFR;1/1/2011;31/12/2015;245;170;415;65;125;190
+1084;Mehra et al. 2019;2019;India;Single-center studies;Studies with patient matching;6;Studies with ROBINS-I: Moderate;Studies published after 2018;Trifecta defined by IT;1/1/2011;31/7/2018;8;5;13;19;7;26
+1091;Motoyama et al. 2019;2019;Japan;Single-center studies;Studies with patient matching;7;Studies with ROBINS-I: Low;Studies published after 2018;Trifecta defined by IT;1/7/2010;31/8/2017;34;3;37;23;14;37
+1113;Porpiglia et al. 2016;2016;Italy;Multicenter studies;Studies without patient matching;9;Studies with ROBINS-I: Low;Studies published before 2018;Trifecta defined by IT;1/1/2009;31/12/2013;66;29;95;83;50;133
+1131;Soisrithong et al. 2021;2021;Thailand;Single-center studies;Studies without patient matching;7;Studies with ROBINS-I: Serious;Studies published after 2018;Trifecta defined by eGFR;1/1/2009;31/12/2018;22;19;41;9;9;18
+1524;Zeuschner et al. 2021;2021;Germany;Single-center studies;Studies with patient matching;6;Studies with ROBINS-I: Moderate;Studies published after 2018;Trifecta defined by IT;1/1/2007;31/12/2018;294;206;500;182;131;313
