@@ -277,7 +277,7 @@ dset_osa <- dset[-ind,]
 
 
 # Pooled meta analysis
-png("13. Forest plot (pooled) - OSA.png", width = 700, height = 400)
+png("13. Forest plot (pooled) - OSA.png", width = 700, height = 450)
 mc0re_osa<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset_osa, studlab = study, comb.fixed = FALSE)
 forestmc0re_osa<-forest(mc0re_osa, text.addline1 = "Odds Ratio in minor complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
@@ -566,7 +566,7 @@ dset_osa <- dset[-ind,]
 
 
 # Pooled meta analysis
-png("30. Forest plot (pooled) - OSA.png", width = 800, height = 550)
+png("30. Forest plot (pooled) - OSA.png", width = 800, height = 500)
 mc0re_osa<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset_osa, studlab = study, comb.fixed = FALSE, hakn = TRUE)
 forestmc0re_osa<-forest(mc0re_osa, text.addline1 = "Mean Difference in eGFR change from baseline (ml/min/1.73m²)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0re_osa$lower,3))-0.1, max(round(mc0re_osa$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours RPN / RAPN", label.left = "Favours OPN", just = "center")
 dev.off()
@@ -671,7 +671,7 @@ dset_osa <- dset[-ind,]
 
 
 # Pooled meta analysis
-png("36. Forest plot (pooled) - OSA.png", width = 800, height = 350)
+png("36. Forest plot (pooled) - OSA.png", width = 800, height = 300)
 mc0re_osa<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset_osa, studlab = study, comb.fixed = FALSE, hakn = TRUE)
 forestmc0re_osa<-forest(mc0re_osa, text.addline1 = "Mean Difference in creatinine change from baseline (mg/dl)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0re_osa$lower,3))-0.1, max(round(mc0re_osa$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
