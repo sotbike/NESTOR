@@ -16,7 +16,7 @@ library(metafor)
 library(metasens)
 
 
-################################################### DATASETS #######################################################
+################################################### DATASETS (OSA) #######################################################
 
 # First we import the required datasets
 TRIFECTA<-read.csv("C:/Users/sotbi/Desktop/Data/TRIFECTA.csv", sep=";", header=TRUE)
@@ -753,5 +753,671 @@ lines(starsvec_osa, predsstars2_osa$ci.lb, lty = "dashed")
 lines(starsvec_osa, predsstars2_osa$ci.ub, lty = "dashed")
 abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtfstars_osa$yi)-1,0), round(max(mc0remtfstars_osa$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+################################################### DATASETS (BASE) #######################################################
+
+# In this section we isolate subgroups of studies with no baseline differences
+
+# First we import the required datasets
+TRIFECTA<-read.csv("C:/Users/sotbi/Desktop/Data/TRIFECTA.csv", sep=";", header=TRUE)
+MAJOR_COMP<-read.csv("C:/Users/sotbi/Desktop/Data/MAJOR_COMP.csv", sep=";", header=TRUE)
+MINOR_COMP<-read.csv("C:/Users/sotbi/Desktop/Data/MINOR_COMP.csv", sep=";", header=TRUE)
+PSM<-read.csv("C:/Users/sotbi/Desktop/Data/PSM.csv", sep=";", header=TRUE)
+IT<-read.csv("C:/Users/sotbi/Desktop/Data/IT.csv", sep=";", header=TRUE)
+ΔEGFR<-read.csv("C:/Users/sotbi/Desktop/Data/ΔEGFR.csv", sep=";", header=TRUE)
+ΔCREATININE<-read.csv("C:/Users/sotbi/Desktop/Data/ΔCREATININE.csv", sep=";", header=TRUE)
+
+# We create a new folder named "Plots_BASE" on desktop (BASE stands for equal baseline sensitivity analysis)
+folder_name <- "Plots_BASE"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# And now we set the working directory to the new folder 
+# This is where the plots are to be saved
+setwd("C:/Users/sotbi/Desktop/Plots_BASE")
+
+
+##################################################### PLOTS #########################################################
+
+# Now we define the width & height parameters for the new forest plots
+# Pooled analysis forest plot parameters
+W_for_pool <- 850
+H_for_pool <- 1000
+
+# Funnel & Radial plot parameters
+W_fr <- 1200 
+H_fr <- 780
+
+# Pooled analysis MRA plot parameters
+W_pool <- 1200
+H_pool <- 780
+
+
+#################################################### TRIFECTA (REM) ##########################################################
+
+# We will proceed with the MA on the new dataset: dset_base
+# First we initialize the dset data.frame
+dset_base<-TRIFECTA[which(TRIFECTA$eq_baseline==1),]
+
+
+# Pooled meta analysis
+png("1. Forest plot (pooled) - BASE.png", width = 700, height = 350)
+mc0re_base<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset_base, studlab = study, comb.fixed = FALSE)
+forestmc0re_base<-forest(mc0re_base, text.addline1 = "Odds Ratio in Trifecta achievement rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours RPN / RAPN", label.left = "Favours OPN", just = "center")
+dev.off()
+
+png("2. Funnel plot - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+funnelmc0re_base<-funnel(mc0re_base, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(0.3,4), xlab = "", ylab = "", axes = TRUE)
+legend(0.3, 0, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+png("3. Radial plot with Egger's test - BASE.png", width = W_fr, height = H_fr)
+radialmc0re_base<-radial(mc0re_base)
+eggersmc0re_base<-metabias(mc0re_base, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_base
+regmc0re_base<-lm(I(mc0re_base$TE/mc0re_base$seTE) ~ I(1/mc0re_base$seTE))
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
+radial(mc0re_base, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+abline(regmc0re_base)
+title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
+dev.off()
+
+
+# Small study Effects
+png("4. Funnel plot with small study effects - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+l2_base<-limitmeta(mc0re_base)
+funnel(l2_base, cex = 1.5, xlim = c(0.4,4), xlab = "", ylab = "", axes = TRUE)
+print(l2_base, digits = 3)
+title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+
+# Now we will proceed with the MRA on the new dataset: dset_base
+
+# Meta Regression Analysis for publication year in all studies (using metafor)
+png("5. MRA plot according to publication year (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+mc0remtf_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfma_base<-rma(yi, vi, data = mc0remtf_base, method = "REML", mods = ~year)
+yearvec_base<-seq(min(dset_base$year), max(dset_base$year), 1)
+preds2_base<-predict(mc0remtfma_base, newmods = yearvec_base)
+wi2_base<-1/sqrt(mc0remtf_base$vi+mc0remtfma_base$tau2)
+size2_base<-1+2*(wi2_base - min(wi2_base)) / (max(wi2_base) - min(wi2_base))
+plot(mc0remtf_base$year, mc0remtf_base$yi, pch = 1, cex = size2_base, xlim = c(min(mc0remtf_base$year)-1, max(mc0remtf_base$year)+1), ylim = c(min(mc0remtf_base$yi)-1, max(mc0remtf_base$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_base, preds2_base$pred, lwd = 2, col = "red")
+lines(yearvec_base, preds2_base$ci.lb, lty = "dashed")
+lines(yearvec_base, preds2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtf_base$yi)-1,0), round(max(mc0remtf_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+png("6. MRA plot according to NOS quality stars (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+mc0remtfstars_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfmastars_base<-rma(yi, vi, data = mc0remtfstars_base, method = "REML", mods = ~stars)
+starsvec_base<-seq(min(dset_base$stars), max(dset_base$stars), 1)
+predsstars2_base<-predict(mc0remtfmastars_base, newmods = starsvec_base)
+wistars2_base<-1/sqrt(mc0remtfstars_base$vi+mc0remtfmastars_base$tau2)
+sizestars2_base<-1+2*(wistars2_base - min(wistars2_base)) / (max(wistars2_base) - min(wistars2_base))
+plot(mc0remtfstars_base$stars, mc0remtfstars_base$yi, pch = 1, cex = sizestars2_base, xlim = c(min(mc0remtfstars_base$stars)-1, max(mc0remtfstars_base$stars)+1), ylim = c(min(mc0remtfstars_base$yi)-1, max(mc0remtfstars_base$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_base, predsstars2_base$pred, lwd = 2, col = "red")
+lines(starsvec_base, predsstars2_base$ci.lb, lty = "dashed")
+lines(starsvec_base, predsstars2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfstars_base$yi)-1,0), round(max(mc0remtfstars_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+#################################################### MAJOR_COMP (REM) ##########################################################
+
+# We will proceed with the MA on the new dataset: dset_base
+# First we initialize the dset data.frame
+dset_base<-MAJOR_COMP[which(MAJOR_COMP$eq_baseline==1),]
+
+
+# Pooled meta analysis
+png("7. Forest plot (pooled) - BASE.png", width = 700, height = 450)
+mc0re_base<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset_base, studlab = study, comb.fixed = FALSE)
+forestmc0re_base<-forest(mc0re_base, text.addline1 = "Odds Ratio in major complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+dev.off()
+
+png("8. Funnel plot - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+funnelmc0re_base<-funnel(mc0re_base, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(0.1,9), xlab = "", ylab = "", axes = TRUE)
+legend(0.1, 0, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+png("9. Radial plot with Egger's test - BASE.png", width = W_fr, height = H_fr)
+radialmc0re_base<-radial(mc0re_base)
+eggersmc0re_base<-metabias(mc0re_base, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_base
+regmc0re_base<-lm(I(mc0re_base$TE/mc0re_base$seTE) ~ I(1/mc0re_base$seTE))
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
+radial(mc0re_base, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+abline(regmc0re_base)
+title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
+dev.off()
+
+
+# Small study Effects
+png("10. Funnel plot with small study effects - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+l2_base<-limitmeta(mc0re_base)
+funnel(l2_base, cex = 1.5, xlim = c(0.1,9), xlab = "", ylab = "", axes = TRUE)
+print(l2_base, digits = 3)
+title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+
+# Now we will proceed with the MRA on the new dataset: dset_base
+
+# Meta Regression Analysis for publication year in all studies (using metafor)
+png("11. MRA plot according to publication year (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+mc0remtf_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfma_base<-rma(yi, vi, data = mc0remtf_base, method = "REML", mods = ~year)
+yearvec_base<-seq(min(dset_base$year), max(dset_base$year), 1)
+preds2_base<-predict(mc0remtfma_base, newmods = yearvec_base)
+wi2_base<-1/sqrt(mc0remtf_base$vi+mc0remtfma_base$tau2)
+size2_base<-1+2*(wi2_base - min(wi2_base)) / (max(wi2_base) - min(wi2_base))
+plot(mc0remtf_base$year, mc0remtf_base$yi, pch = 1, cex = size2_base, xlim = c(min(mc0remtf_base$year)-1, max(mc0remtf_base$year)+1), ylim = c(min(mc0remtf_base$yi)-1, max(mc0remtf_base$yi)+1), ylab = "log Odds Ratio in major complication rates (RPN / RAPN vs. OPN)", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_base, preds2_base$pred, lwd = 2, col = "red")
+lines(yearvec_base, preds2_base$ci.lb, lty = "dashed")
+lines(yearvec_base, preds2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtf_base$yi)-1,0), round(max(mc0remtf_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+png("12. MRA plot according to NOS quality stars (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+mc0remtfstars_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfmastars_base<-rma(yi, vi, data = mc0remtfstars_base, method = "REML", mods = ~stars)
+starsvec_base<-seq(min(dset_base$stars), max(dset_base$stars), 1)
+predsstars2_base<-predict(mc0remtfmastars_base, newmods = starsvec_base)
+wistars2_base<-1/sqrt(mc0remtfstars_base$vi+mc0remtfmastars_base$tau2)
+sizestars2_base<-1+2*(wistars2_base - min(wistars2_base)) / (max(wistars2_base) - min(wistars2_base))
+plot(mc0remtfstars_base$stars, mc0remtfstars_base$yi, pch = 1, cex = sizestars2_base, xlim = c(min(mc0remtfstars_base$stars)-1, max(mc0remtfstars_base$stars)+1), ylim = c(min(mc0remtfstars_base$yi)-1, max(mc0remtfstars_base$yi)+1), ylab = "log Odds Ratio in major complication rates (RPN / RAPN vs. OPN)", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_base, predsstars2_base$pred, lwd = 2, col = "red")
+lines(starsvec_base, predsstars2_base$ci.lb, lty = "dashed")
+lines(starsvec_base, predsstars2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfstars_base$yi)-1,0), round(max(mc0remtfstars_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+#################################################### MINOR_COMP (REM) ##########################################################
+
+# We will proceed with the MA on the new dataset: dset_base
+# First we initialize the dset data.frame
+dset_base<-MINOR_COMP[which(MINOR_COMP$eq_baseline==1),]
+
+
+# Pooled meta analysis
+png("13. Forest plot (pooled) - BASE.png", width = 700, height = 450)
+mc0re_base<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset_base, studlab = study, comb.fixed = FALSE)
+forestmc0re_base<-forest(mc0re_base, text.addline1 = "Odds Ratio in minor complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+dev.off()
+
+png("14. Funnel plot - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+funnelmc0re_base<-funnel(mc0re_base, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(0.1,6), xlab = "", ylab = "", axes = TRUE)
+legend(0.1, 0, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+png("15. Radial plot with Egger's test - BASE.png", width = W_fr, height = H_fr)
+radialmc0re_base<-radial(mc0re_base)
+eggersmc0re_base<-metabias(mc0re_base, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_base
+regmc0re_base<-lm(I(mc0re_base$TE/mc0re_base$seTE) ~ I(1/mc0re_base$seTE))
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
+radial(mc0re_base, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+abline(regmc0re_base)
+title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
+dev.off()
+
+
+# Small study Effects
+png("16. Funnel plot with small study effects - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+l2_base<-limitmeta(mc0re_base)
+funnel(l2_base, cex = 1.5, xlim = c(0.1,4), xlab = "", ylab = "", axes = TRUE)
+print(l2_base, digits = 3)
+title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+
+# Now we will proceed with the MRA on the new dataset: dset_base
+
+# Meta Regression Analysis for publication year in all studies (using metafor)
+png("17. MRA plot according to publication year (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+mc0remtf_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfma_base<-rma(yi, vi, data = mc0remtf_base, method = "REML", mods = ~year)
+yearvec_base<-seq(min(dset_base$year), max(dset_base$year), 1)
+preds2_base<-predict(mc0remtfma_base, newmods = yearvec_base)
+wi2_base<-1/sqrt(mc0remtf_base$vi+mc0remtfma_base$tau2)
+size2_base<-1+2*(wi2_base - min(wi2_base)) / (max(wi2_base) - min(wi2_base))
+plot(mc0remtf_base$year, mc0remtf_base$yi, pch = 1, cex = size2_base, xlim = c(min(mc0remtf_base$year)-1, max(mc0remtf_base$year)+1), ylim = c(min(mc0remtf_base$yi)-1, max(mc0remtf_base$yi)+1), ylab = "log Odds Ratio in minor complication rates (RPN / RAPN vs. OPN)", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_base, preds2_base$pred, lwd = 2, col = "red")
+lines(yearvec_base, preds2_base$ci.lb, lty = "dashed")
+lines(yearvec_base, preds2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtf_base$yi)-1,0), round(max(mc0remtf_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+png("18. MRA plot according to NOS quality stars (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+mc0remtfstars_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfmastars_base<-rma(yi, vi, data = mc0remtfstars_base, method = "REML", mods = ~stars)
+starsvec_base<-seq(min(dset_base$stars), max(dset_base$stars), 1)
+predsstars2_base<-predict(mc0remtfmastars_base, newmods = starsvec_base)
+wistars2_base<-1/sqrt(mc0remtfstars_base$vi+mc0remtfmastars_base$tau2)
+sizestars2_base<-1+2*(wistars2_base - min(wistars2_base)) / (max(wistars2_base) - min(wistars2_base))
+plot(mc0remtfstars_base$stars, mc0remtfstars_base$yi, pch = 1, cex = sizestars2_base, xlim = c(min(mc0remtfstars_base$stars)-1, max(mc0remtfstars_base$stars)+1), ylim = c(min(mc0remtfstars_base$yi)-1, max(mc0remtfstars_base$yi)+1), ylab = "log Odds Ratio in minor complication rates (RPN / RAPN vs. OPN)", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_base, predsstars2_base$pred, lwd = 2, col = "red")
+lines(starsvec_base, predsstars2_base$ci.lb, lty = "dashed")
+lines(starsvec_base, predsstars2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfstars_base$yi)-1,0), round(max(mc0remtfstars_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+#################################################### PSM (REM) ##########################################################
+
+# We will proceed with the MA on the new dataset: dset_base
+# First we initialize the dset data.frame
+dset_base<-PSM[which(PSM$eq_baseline==1),]
+
+
+# Pooled meta analysis
+png("19. Forest plot (pooled) - BASE.png", width = 700, height = 450)
+mc0re_base<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset_base, studlab = study, comb.fixed = FALSE)
+forestmc0re_base<-forest(mc0re_base, text.addline1 = "Odds Ratio in positive surgical margin rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+dev.off()
+
+png("20. Funnel plot - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+funnelmc0re_base<-funnel(mc0re_base, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(0.05, 12), xlab = "", ylab = "", axes = TRUE)
+legend(0.05, 0, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+png("21. Radial plot with Egger's test - BASE.png", width = W_fr, height = H_fr)
+radialmc0re_base<-radial(mc0re_base)
+eggersmc0re_base<-metabias(mc0re_base, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_base
+regmc0re_base<-lm(I(mc0re_base$TE/mc0re_base$seTE) ~ I(1/mc0re_base$seTE))
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
+radial(mc0re_base, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+abline(regmc0re_base)
+title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
+dev.off()
+
+
+# Now we will proceed with the MRA on the new dataset: dset_base
+
+# Meta Regression Analysis for publication year in all studies (using metafor)
+png("22. MRA plot according to publication year (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+mc0remtf_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfma_base<-rma(yi, vi, data = mc0remtf_base, method = "REML", mods = ~year)
+yearvec_base<-seq(min(dset_base$year), max(dset_base$year), 1)
+preds2_base<-predict(mc0remtfma_base, newmods = yearvec_base)
+wi2_base<-1/sqrt(mc0remtf_base$vi+mc0remtfma_base$tau2)
+size2_base<-1+2*(wi2_base - min(wi2_base)) / (max(wi2_base) - min(wi2_base))
+plot(mc0remtf_base$year, mc0remtf_base$yi, pch = 1, cex = size2_base, xlim = c(min(mc0remtf_base$year)-1, max(mc0remtf_base$year)+1), ylim = c(min(mc0remtf_base$yi)-1, max(mc0remtf_base$yi)+1), ylab = "log Odds Ratio in positive surgical margin rates (RPN / RAPN vs. OPN)", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_base, preds2_base$pred, lwd = 2, col = "red")
+lines(yearvec_base, preds2_base$ci.lb, lty = "dashed")
+lines(yearvec_base, preds2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtf_base$yi)-1,0), round(max(mc0remtf_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+png("23. MRA plot according to NOS quality stars (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+mc0remtfstars_base<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_base, append = TRUE)
+mc0remtfmastars_base<-rma(yi, vi, data = mc0remtfstars_base, method = "REML", mods = ~stars)
+starsvec_base<-seq(min(dset_base$stars), max(dset_base$stars), 1)
+predsstars2_base<-predict(mc0remtfmastars_base, newmods = starsvec_base)
+wistars2_base<-1/sqrt(mc0remtfstars_base$vi+mc0remtfmastars_base$tau2)
+sizestars2_base<-1+2*(wistars2_base - min(wistars2_base)) / (max(wistars2_base) - min(wistars2_base))
+plot(mc0remtfstars_base$stars, mc0remtfstars_base$yi, pch = 1, cex = sizestars2_base, xlim = c(min(mc0remtfstars_base$stars)-1, max(mc0remtfstars_base$stars)+1), ylim = c(min(mc0remtfstars_base$yi)-1, max(mc0remtfstars_base$yi)+1), ylab = "log Odds Ratio in positive surgical margin rates (RPN / RAPN vs. OPN)", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_base, predsstars2_base$pred, lwd = 2, col = "red")
+lines(starsvec_base, predsstars2_base$ci.lb, lty = "dashed")
+lines(starsvec_base, predsstars2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfstars_base$yi)-1,0), round(max(mc0remtfstars_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+#################################################### IT (REM) ##########################################################
+
+# We will proceed with the MA on the new dataset: dset_base
+# First we initialize the dset data.frame
+dset_base<-IT[which(IT$eq_baseline==1),]
+
+
+# Pooled meta analysis
+png("24. Forest plot (pooled) - BASE.png", width = 900, height = 650)
+mc0re_base<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset_base, studlab = study, comb.fixed = FALSE, hakn = TRUE)
+forestmc0re_base<-forest(mc0re_base, text.addline1 = "Mean Difference in ischemia time (min)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0re_base$lower,3))-0.1, max(round(mc0re_base$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+dev.off()
+
+png("25. Funnel plot - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+funnelmc0re_base<-funnel(mc0re_base, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(min(round(mc0re_base$TE,3))-0.1, max(round(mc0re_base$TE,3))+1.25), xlab = "", ylab = "", axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+legend(min(round(mc0re_base$TE,3)), 0.025, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+png("26. Radial plot with Egger's test - BASE.png", width = W_fr, height = H_fr)
+radialmc0re_base<-radial(mc0re_base)
+eggersmc0re_base<-metabias(mc0re_base, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_base
+regmc0re_base<-lm(I(mc0re_base$TE/mc0re_base$seTE) ~ I(1/mc0re_base$seTE))
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
+radial(mc0re_base, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+abline(regmc0re_base)
+title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
+dev.off()
+
+
+# Small study Effects
+png("27. Funnel plot with small study effects - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+l2_base<-limitmeta(mc0re_base)
+funnel(l2_base, cex = 1.5, xlim = c(min(round(mc0re_base$TE,3))-0.1, max(round(mc0re_base$TE,3))+1.25), xlab = "", ylab = "", axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+print(l2_base, digits = 3)
+title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+
+# Now we will proceed with the MRA on the new dataset: dset_base
+
+# Meta Regression Analysis for publication year in all studies (using metafor)
+png("28. MRA plot according to publication year (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+mc0remtf_base<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_base, append = TRUE)
+mc0remtfma_base<-rma(yi, vi, data = mc0remtf_base, method = "REML", mods = ~year)
+yearvec_base<-seq(min(dset_base$year), max(dset_base$year), 1)
+preds2_base<-predict(mc0remtfma_base, newmods = yearvec_base)
+wi2_base<-1/sqrt(mc0remtf_base$vi+mc0remtfma_base$tau2)
+size2_base<-1+2*(wi2_base - min(wi2_base)) / (max(wi2_base) - min(wi2_base))
+plot(mc0remtf_base$year, mc0remtf_base$yi, pch = 1, cex = size2_base, xlim = c(min(mc0remtf_base$year)-1, max(mc0remtf_base$year)+1), ylim = c(min(mc0remtf_base$yi)-1, max(mc0remtf_base$yi)+1), ylab = "Mean Difference in ischemia time (RPN / RAPN vs. OPN) in min", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_base, preds2_base$pred, lwd = 2, col = "red")
+lines(yearvec_base, preds2_base$ci.lb, lty = "dashed")
+lines(yearvec_base, preds2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtf_base$yi)-1,0), round(max(mc0remtf_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+png("29. MRA plot according to NOS quality stars (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+mc0remtfstars_base<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_base, append = TRUE)
+mc0remtfmastars_base<-rma(yi, vi, data = mc0remtfstars_base, method = "REML", mods = ~stars)
+starsvec_base<-seq(min(dset_base$stars), max(dset_base$stars), 1)
+predsstars2_base<-predict(mc0remtfmastars_base, newmods = starsvec_base)
+wistars2_base<-1/sqrt(mc0remtfstars_base$vi+mc0remtfmastars_base$tau2)
+sizestars2_base<-1+2*(wistars2_base - min(wistars2_base)) / (max(wistars2_base) - min(wistars2_base))
+plot(mc0remtfstars_base$stars, mc0remtfstars_base$yi, pch = 1, cex = sizestars2_base, xlim = c(min(mc0remtfstars_base$stars)-1, max(mc0remtfstars_base$stars)+1), ylim = c(min(mc0remtfstars_base$yi)-1, max(mc0remtfstars_base$yi)+1), ylab = "Mean Difference in ischemia time (RPN / RAPN vs. OPN) in min", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_base, predsstars2_base$pred, lwd = 2, col = "red")
+lines(starsvec_base, predsstars2_base$ci.lb, lty = "dashed")
+lines(starsvec_base, predsstars2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfstars_base$yi)-1,0), round(max(mc0remtfstars_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+#################################################### ΔEGFR (REM) ##########################################################
+
+# We will proceed with the MA on the new dataset: dset_base
+# First we initialize the dset data.frame
+dset_base<-ΔEGFR[which(ΔEGFR$eq_baseline==1),]
+
+
+# Pooled meta analysis
+png("30. Forest plot (pooled) - BASE.png", width = 800, height = 500)
+mc0re_base<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset_base, studlab = study, comb.fixed = FALSE, hakn = TRUE)
+forestmc0re_base<-forest(mc0re_base, text.addline1 = "Mean Difference in eGFR change from baseline (ml/min/1.73m²)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0re_base$lower,3))-0.1, max(round(mc0re_base$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours RPN / RAPN", label.left = "Favours OPN", just = "center")
+dev.off()
+
+png("31. Funnel plot - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+funnelmc0re_base<-funnel(mc0re_base, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(-10, 15), xlab = "", ylab = "", axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+legend(-10, 0, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+png("32. Radial plot with Egger's test - BASE.png", width = W_fr, height = H_fr)
+radialmc0re_base<-radial(mc0re_base)
+eggersmc0re_base<-metabias(mc0re_base, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_base
+regmc0re_base<-lm(I(mc0re_base$TE/mc0re_base$seTE) ~ I(1/mc0re_base$seTE))
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
+radial(mc0re_base, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+abline(regmc0re_base)
+title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
+dev.off()
+
+
+# Small study Effects
+png("33. Funnel plot with small study effects - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+l2_base<-limitmeta(mc0re_base)
+funnel(l2_base, cex = 1.5, xlim = c(-10, 15), xlab = "", ylab = "", axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+print(l2_base, digits = 3)
+title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+
+# Now we will proceed with the MRA on the new dataset: dset_base
+
+# Meta Regression Analysis for publication year in all studies (using metafor)
+png("34. MRA plot according to publication year (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+mc0remtf_base<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_base, append = TRUE)
+mc0remtfma_base<-rma(yi, vi, data = mc0remtf_base, method = "REML", mods = ~year)
+yearvec_base<-seq(min(dset_base$year), max(dset_base$year), 1)
+preds2_base<-predict(mc0remtfma_base, newmods = yearvec_base)
+wi2_base<-1/sqrt(mc0remtf_base$vi+mc0remtfma_base$tau2)
+size2_base<-1+2*(wi2_base - min(wi2_base)) / (max(wi2_base) - min(wi2_base))
+plot(mc0remtf_base$year, mc0remtf_base$yi, pch = 1, cex = size2_base, xlim = c(min(mc0remtf_base$year)-1, max(mc0remtf_base$year)+1), ylim = c(min(mc0remtf_base$yi)-1, max(mc0remtf_base$yi)+1), ylab = "Mean Difference in eGFR change from baseline (RPN / RAPN vs. OPN) in ml/min/1.73m²", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_base, preds2_base$pred, lwd = 2, col = "red")
+lines(yearvec_base, preds2_base$ci.lb, lty = "dashed")
+lines(yearvec_base, preds2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtf_base$yi)-1,0), round(max(mc0remtf_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+png("35. MRA plot according to NOS quality stars (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+mc0remtfstars_base<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_base, append = TRUE)
+mc0remtfmastars_base<-rma(yi, vi, data = mc0remtfstars_base, method = "REML", mods = ~stars)
+starsvec_base<-seq(min(dset_base$stars), max(dset_base$stars), 1)
+predsstars2_base<-predict(mc0remtfmastars_base, newmods = starsvec_base)
+wistars2_base<-1/sqrt(mc0remtfstars_base$vi+mc0remtfmastars_base$tau2)
+sizestars2_base<-1+2*(wistars2_base - min(wistars2_base)) / (max(wistars2_base) - min(wistars2_base))
+plot(mc0remtfstars_base$stars, mc0remtfstars_base$yi, pch = 1, cex = sizestars2_base, xlim = c(min(mc0remtfstars_base$stars)-1, max(mc0remtfstars_base$stars)+1), ylim = c(min(mc0remtfstars_base$yi)-1, max(mc0remtfstars_base$yi)+1), ylab = "Mean Difference in eGFR change from baseline (RPN / RAPN vs. OPN) in ml/min/1.73m²", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_base, predsstars2_base$pred, lwd = 2, col = "red")
+lines(starsvec_base, predsstars2_base$ci.lb, lty = "dashed")
+lines(starsvec_base, predsstars2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfstars_base$yi)-1,0), round(max(mc0remtfstars_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+#################################################### ΔCREATININE (REM) ##########################################################
+
+# We will proceed with the MA on the new dataset: dset_base
+# First we initialize the dset data.frame
+dset_base<-ΔCREATININE[which(ΔCREATININE$eq_baseline==1),]
+
+
+# Pooled meta analysis
+png("36. Forest plot (pooled) - BASE.png", width = 800, height = 300)
+mc0re_base<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset_base, studlab = study, comb.fixed = FALSE, hakn = TRUE)
+forestmc0re_base<-forest(mc0re_base, text.addline1 = "Mean Difference in creatinine change from baseline (mg/dl)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0re_base$lower,3))-0.1, max(round(mc0re_base$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+dev.off()
+
+png("37. Funnel plot - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+funnelmc0re_base<-funnel(mc0re_base, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(-0.3, 0.2), xlab = "", ylab = "", axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+legend(-0.3, 0, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+png("38. Radial plot with Egger's test - BASE.png", width = W_fr, height = H_fr)
+radialmc0re_base<-radial(mc0re_base)
+eggersmc0re_base<-metabias(mc0re_base, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_base
+regmc0re_base<-lm(I(mc0re_base$TE/mc0re_base$seTE) ~ I(1/mc0re_base$seTE))
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
+radial(mc0re_base, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+abline(regmc0re_base)
+title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
+dev.off()
+
+
+# Small study Effects
+png("39. Funnel plot with small study effects - BASE.png", width = W_fr, height = H_fr)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+l2_base<-limitmeta(mc0re_base)
+funnel(l2_base, cex = 1.5, xlim = c(-0.3, 0.2), xlab = "", ylab = "", axes = FALSE)
+coords <- par("usr")
+rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+axis(2, cex.axis = 1.5, pos = coords[1])
+axis(1, cex.axis = 1.5, pos = coords[3])
+print(l2_base, digits = 3)
+title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+dev.off()
+
+
+# Now we will proceed with the MRA on the new dataset: dset_base
+
+# Meta Regression Analysis for publication year in all studies (using metafor)
+png("40. MRA plot according to publication year (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+mc0remtf_base<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_base, append = TRUE)
+mc0remtfma_base<-rma(yi, vi, data = mc0remtf_base, method = "REML", mods = ~year)
+yearvec_base<-seq(min(dset_base$year), max(dset_base$year), 1)
+preds2_base<-predict(mc0remtfma_base, newmods = yearvec_base)
+wi2_base<-1/sqrt(mc0remtf_base$vi+mc0remtfma_base$tau2)
+size2_base<-1+2*(wi2_base - min(wi2_base)) / (max(wi2_base) - min(wi2_base))
+plot(mc0remtf_base$year, mc0remtf_base$yi, pch = 1, cex = size2_base, xlim = c(min(mc0remtf_base$year)-1, max(mc0remtf_base$year)+1), ylim = c(min(mc0remtf_base$yi)-1, max(mc0remtf_base$yi)+1), ylab = "Mean Difference in creatinine change from baseline (RPN / RAPN vs. OPN) in mg/dl", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_base, preds2_base$pred, lwd = 2, col = "red")
+lines(yearvec_base, preds2_base$ci.lb, lty = "dashed")
+lines(yearvec_base, preds2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtf_base$yi)-1,0), round(max(mc0remtf_base$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+
+
+png("41. MRA plot according to NOS quality stars (pooled) - BASE.png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+mc0remtfstars_base<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_base, append = TRUE)
+mc0remtfmastars_base<-rma(yi, vi, data = mc0remtfstars_base, method = "REML", mods = ~stars)
+starsvec_base<-seq(min(dset_base$stars), max(dset_base$stars), 1)
+predsstars2_base<-predict(mc0remtfmastars_base, newmods = starsvec_base)
+wistars2_base<-1/sqrt(mc0remtfstars_base$vi+mc0remtfmastars_base$tau2)
+sizestars2_base<-1+2*(wistars2_base - min(wistars2_base)) / (max(wistars2_base) - min(wistars2_base))
+plot(mc0remtfstars_base$stars, mc0remtfstars_base$yi, pch = 1, cex = sizestars2_base, xlim = c(min(mc0remtfstars_base$stars)-1, max(mc0remtfstars_base$stars)+1), ylim = c(min(mc0remtfstars_base$yi)-1, max(mc0remtfstars_base$yi)+1), ylab = "Mean Difference in creatinine change from baseline (RPN / RAPN vs. OPN) in mg/dl", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_base, predsstars2_base$pred, lwd = 2, col = "red")
+lines(starsvec_base, predsstars2_base$ci.lb, lty = "dashed")
+lines(starsvec_base, predsstars2_base$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfstars_base$yi)-1,0), round(max(mc0remtfstars_base$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
