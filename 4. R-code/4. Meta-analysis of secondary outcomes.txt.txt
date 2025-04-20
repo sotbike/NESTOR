@@ -47,13 +47,13 @@ setwd("C:/Users/sotbi/Desktop/Plots_S")
 # The same parameters for MRA plots are defined in the same way below
 # Pooled analysis forest plot parameters
 W_for_pool <- 900
-H_for_pool <- 1200
+H_for_pool <- 1300
 # Funnel & Radial plot parameters
 W_fr <- 1200 
 H_fr <- 780
 # Subgroup analysis forest plot parameters
 W_for_sga <- 900
-H_for_sga <- 1300
+H_for_sga <- 1400
 
 
 # We have similar patterns of MRA plots, so we can adjust their width & height parameters from here
@@ -90,7 +90,7 @@ dset$robins <- factor(dset$robins, levels = order_robins)
 
 
 # Pooled meta analysis
-png("1. Forest plot (pooled).png", width = 800, height = 700)
+png("1. Forest plot (pooled).png", width = 800, height = 800)
 mc0re<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE)
 forestmc0re<-forest(mc0re, text.addline1 = "Odds Ratio in major complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 weights_mc <- mc0re$w.random
@@ -132,25 +132,25 @@ dev.off()
 
 
 # subgroup analysis (post2018)
-png("5. Forest plot with subgroups according to publication year.png", width = 800, height = 850)
+png("5. Forest plot with subgroups according to publication year.png", width = 800, height = 950)
 mc0repost2018<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = post2018, print.byvar = FALSE)
 forestmc0repost2018<-forest(mc0repost2018, text.addline1 = "Odds Ratio in major complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (matching)
-png("6. Forest plot with subgroups according to patient matching.png", width = 800, height = 850)
+png("6. Forest plot with subgroups according to patient matching.png", width = 800, height = 950)
 mc0rematched<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = matching, print.byvar = FALSE)
 forestmc0rematched<-forest(mc0rematched, text.addline1 = "Odds Ratio in major complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (center)
-png("7. Forest plot with subgroups according to the number of centers.png", width = 800, height = 850)
+png("7. Forest plot with subgroups according to the number of centers.png", width = 800, height = 950)
 mc0recenter<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = center, print.byvar = FALSE)
 forestmc0recenter<-forest(mc0recenter, text.addline1 = "Odds Ratio in major complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (robins)
-png("8. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 850)
+png("8. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 950)
 mc0rerobins<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = robins, print.byvar = FALSE)
 forestmc0rerobins<-forest(mc0rerobins, text.addline1 = "Odds Ratio in major complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
@@ -393,7 +393,7 @@ dset$robins <- factor(dset$robins, levels = order_robins)
 
 
 # Pooled meta analysis
-png("16. Forest plot (pooled).png", width = 800, height = 550)
+png("16. Forest plot (pooled).png", width = 800, height = 600)
 mc0re<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE)
 forestmc0re<-forest(mc0re, text.addline1 = "Odds Ratio in minor complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 weights_mc <- mc0re$w.random
@@ -435,25 +435,25 @@ dev.off()
 
 
 # subgroup analysis (post2018)
-png("20. Forest plot with subgroups according to publication year.png", width = 800, height = 700)
+png("20. Forest plot with subgroups according to publication year.png", width = 800, height = 800)
 mc0repost2018<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = post2018, print.byvar = FALSE)
 forestmc0repost2018<-forest(mc0repost2018, text.addline1 = "Odds Ratio in minor complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (matching)
-png("21. Forest plot with subgroups according to patient matching.png", width = 800, height = 700)
+png("21. Forest plot with subgroups according to patient matching.png", width = 800, height = 800)
 mc0rematched<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = matching, print.byvar = FALSE)
 forestmc0rematched<-forest(mc0rematched, text.addline1 = "Odds Ratio in minor complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (center)
-png("22. Forest plot with subgroups according to the number of centers.png", width = 800, height = 700)
+png("22. Forest plot with subgroups according to the number of centers.png", width = 800, height = 800)
 mc0recenter<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = center, print.byvar = FALSE)
 forestmc0recenter<-forest(mc0recenter, text.addline1 = "Odds Ratio in minor complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (robins)
-png("23. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 700)
+png("23. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 800)
 mc0rerobins<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = robins, print.byvar = FALSE)
 forestmc0rerobins<-forest(mc0rerobins, text.addline1 = "Odds Ratio in minor complication rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
@@ -696,7 +696,7 @@ dset$robins <- factor(dset$robins, levels = order_robins)
 
 
 # Pooled meta analysis
-png("31. Forest plot (pooled).png", width = 800, height = 700)
+png("31. Forest plot (pooled).png", width = 800, height = 750)
 mc0re<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE)
 forestmc0re<-forest(mc0re, text.addline1 = "Odds Ratio in positive surgical margin rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 weights_mc <- mc0re$w.random
@@ -738,25 +738,25 @@ dev.off()
 
 
 # subgroup analysis (post2018)
-png("35. Forest plot with subgroups according to publication year.png", width = 800, height = 850)
+png("35. Forest plot with subgroups according to publication year.png", width = 800, height = 950)
 mc0repost2018<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = post2018, print.byvar = FALSE)
 forestmc0repost2018<-forest(mc0repost2018, text.addline1 = "Odds Ratio in positive surgical margin rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (matching)
-png("36. Forest plot with subgroups according to patient matching.png", width = 800, height = 850)
+png("36. Forest plot with subgroups according to patient matching.png", width = 800, height = 950)
 mc0rematched<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = matching, print.byvar = FALSE)
 forestmc0rematched<-forest(mc0rematched, text.addline1 = "Odds Ratio in positive surgical margin rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (center)
-png("37. Forest plot with subgroups according to the number of centers.png", width = 800, height = 850)
+png("37. Forest plot with subgroups according to the number of centers.png", width = 800, height = 950)
 mc0recenter<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = center, print.byvar = FALSE)
 forestmc0recenter<-forest(mc0recenter, text.addline1 = "Odds Ratio in positive surgical margin rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (robins)
-png("38. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 850)
+png("38. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 950)
 mc0rerobins<-metabin(evexp,nexp,evctrl,nctrl,sm="OR",method = "MH",data = dset, studlab = study, comb.fixed = FALSE, byvar = robins, print.byvar = FALSE)
 forestmc0rerobins<-forest(mc0rerobins, text.addline1 = "Odds Ratio in positive surgical margin rates", text.addline2 = "Comparison: RPN / RAPN vs. OPN", showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
@@ -1050,25 +1050,25 @@ dev.off()
 
 
 # subgroup analysis (post2018)
-png("50. Forest plot with subgroups according to publication year.png", width = 900, height = 1000)
+png("50. Forest plot with subgroups according to publication year.png", width = 900, height = 1050)
 mc0repost2018<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = post2018, print.byvar = FALSE)
 forestmc0repost2018<-forest(mc0repost2018, text.addline1 = "Mean Difference in ischemia time (min)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0repost2018$lower,3))-0.1, max(round(mc0repost2018$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (matching)
-png("51. Forest plot with subgroups according to patient matching.png", width = 900, height = 1000)
+png("51. Forest plot with subgroups according to patient matching.png", width = 900, height = 1050)
 mc0rematched<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = matching, print.byvar = FALSE)
 forestmc0rematched<-forest(mc0rematched, text.addline1 = "Mean Difference in ischemia time (min)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0rematched$lower,3))-0.1, max(round(mc0rematched$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (center)
-png("52. Forest plot with subgroups according to the number of centers.png", width = 900, height = 1000)
+png("52. Forest plot with subgroups according to the number of centers.png", width = 900, height = 1050)
 mc0recenter<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = center, print.byvar = FALSE)
 forestmc0recenter<-forest(mc0recenter, text.addline1 = "Mean Difference in ischemia time (min)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0recenter$lower,3))-0.1, max(round(mc0recenter$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (robins)
-png("53. Forest plot with subgroups according to ROBINS-I.png", width = 900, height = 1000)
+png("53. Forest plot with subgroups according to ROBINS-I.png", width = 900, height = 1050)
 mc0rerobins<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = robins, print.byvar = FALSE)
 forestmc0rerobins<-forest(mc0rerobins, text.addline1 = "Mean Difference in ischemia time (min)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0rerobins$lower,3))-0.1, max(round(mc0rerobins$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
@@ -1674,25 +1674,25 @@ dev.off()
 
 
 # subgroup analysis (post2018)
-png("80. Forest plot with subgroups according to publication year.png", width = 800, height = 450)
+png("80. Forest plot with subgroups according to publication year.png", width = 800, height = 550)
 mc0repost2018<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = post2018, print.byvar = FALSE)
 forestmc0repost2018<-forest(mc0repost2018, text.addline1 = "Mean Difference in creatinine change from baseline (mg/dl)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0repost2018$lower,3))-0.1, max(round(mc0repost2018$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (matching)
-png("81. Forest plot with subgroups according to patient matching.png", width = 800, height = 450)
+png("81. Forest plot with subgroups according to patient matching.png", width = 800, height = 550)
 mc0rematched<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = matching, print.byvar = FALSE)
 forestmc0rematched<-forest(mc0rematched, text.addline1 = "Mean Difference in creatinine change from baseline (mg/dl)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0rematched$lower,3))-0.1, max(round(mc0rematched$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (center)
-png("82. Forest plot with subgroups according to the number of centers.png", width = 800, height = 450)
+png("82. Forest plot with subgroups according to the number of centers.png", width = 800, height = 550)
 mc0recenter<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = center, print.byvar = FALSE)
 forestmc0recenter<-forest(mc0recenter, text.addline1 = "Mean Difference in creatinine change from baseline (mg/dl)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0recenter$lower,3))-0.1, max(round(mc0recenter$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 # subgroup analysis (robins)
-png("83. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 450)
+png("83. Forest plot with subgroups according to ROBINS-I.png", width = 800, height = 550)
 mc0rerobins<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,sm="MD",data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = robins, print.byvar = FALSE)
 forestmc0rerobins<-forest(mc0rerobins, text.addline1 = "Mean Difference in creatinine change from baseline (mg/dl)", text.addline2 = "Comparison: RPN / RAPN vs. OPN", xlim = c(min(round(mc0rerobins$lower,3))-0.1, max(round(mc0rerobins$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
