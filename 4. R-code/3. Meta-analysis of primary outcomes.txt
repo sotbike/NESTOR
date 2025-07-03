@@ -116,6 +116,17 @@ axis(1, cex.axis = 1.5, pos = coords[3])
 abline(regmc0re)
 title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
 dev.off()
+# Egger's test (linear regression method)
+eggers_res <- eggersmc0re
+eggers_p <- eggers_res$p.value
+cat(sprintf("Egger's test p-value: %.4f\n", eggers_p))
+alpha <- 0.05
+if (eggers_p < alpha) {
+  cat("Interpretation: Evidence of potential publication bias (statistically significant at alpha = 0.05)\n")
+} else {
+  cat("Interpretation: No evidence of publication bias (not statistically significant at alpha = 0.05)\n")
+}
+
 
 # Small study Effects
 png("4. Funnel plot with small study effects.png", width = W_fr, height = H_fr)
@@ -125,7 +136,6 @@ funnel(l2, cex = 1.5, xlim = c(0.2,10), xlab = "", ylab = "", axes = TRUE)
 print(l2, digits = 3)
 title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "log Odds Ratio (logOR)", ylab = "Standard Error (SE)", cex.lab = 1.5)
 dev.off()
-
 
 # subgroup analysis (post2018)
 png("5. Forest plot with subgroups according to publication year.png", width = W_for_sga, height = H_for_sga)
@@ -175,6 +185,36 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtf$yi)-1,0), round(max(mc0remtf$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Pooled)
+estimates <- mc0remtf
+model <- mc0remtfma
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
 
 
 png("11. MRA plot according to publication year in studies with or without patient matching.png", width = W_match, height = H_match)
@@ -208,6 +248,66 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtf$yi)-1,0), round(max(mc0remtf$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Matched)
+estimates <- mc0remtfmatched
+model <- mc0remtfmamatched
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Non-Matched)
+estimates <- mc0remtfnonmatched
+model <- mc0remtfmanonmatched
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
 
 
 png("12. MRA plot according to publication year in multi- or single-center studies.png", width = W_center, height = H_center)
@@ -241,6 +341,66 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtf$yi)-1,0), round(max(mc0remtf$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Multicenter)
+estimates <- mc0remtfmulti
+model <- mc0remtfmamulti
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Single-Center)
+estimates <- mc0remtfsingle
+model <- mc0remtfmasingle
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
 
 
 png("13. MRA plot according to publication year in studies with low - moderate - serious risk of bias.png", width = W_robins, height = H_robins)
@@ -288,6 +448,96 @@ axis(side = 1, cex.axis = 1.7)
 #axis(side = 2, at = seq(round(min(mc0remtf$yi)-1,0), round(max(mc0remtf$yi)+1,0), 1), cex.axis = 1.7)
 #axis(side = 1, cex.axis = 1.7)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (ROBINS-I: Low)
+estimates <- mc0remtflow
+model <- mc0remtfmalow
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (ROBINS-I: Moderate)
+estimates <- mc0remtfmoderate
+model <- mc0remtfmamoderate
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (ROBINS-I: Serious)
+estimates <- mc0remtfserious
+model <- mc0remtfmaserious
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
 
 
 png("14. MRA plot according to publication year in studies defining Trifecta by eGFR or IT.png", width = W_center, height = H_center)
@@ -321,6 +571,66 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtf$yi)-1,0), round(max(mc0remtf$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by eGFR)
+estimates <- mc0remtfeGFR
+model <- mc0remtfmaeGFR
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by IT)
+estimates <- mc0remtfIT
+model <- mc0remtfmaIT
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
 
 
 png("15. MRA plot according to NOS quality stars (pooled).png", width = W_pool, height = H_pool)
@@ -340,6 +650,36 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtfstars$yi)-1,0), round(max(mc0remtfstars$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Pooled)
+estimates <- mc0remtfstars
+model <- mc0remtfmastars
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
 
 
 png("16. MRA plot according to NOS quality stars in studies with or without patient matching.png", W_match, height = H_match)
@@ -373,6 +713,66 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtfstars$yi)-1,0), round(max(mc0remtfstars$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Matched)
+estimates <- mc0remtfstarsmatched
+model <- mc0remtfmastarsmatched
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Non-Matched)
+estimates <- mc0remtfstarsnonmatched
+model <- mc0remtfmastarsnonmatched
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
 
 
 png("17. MRA plot according to NOS quality stars in single- or multicenter studies.png", width = W_center, height = H_center)
@@ -406,6 +806,67 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtfstars$yi)-1,0), round(max(mc0remtfstars$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Multicenter)
+estimates <- mc0remtfstarsmulti
+model <- mc0remtfmastarsmulti
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Single-Center)
+estimates <- mc0remtfstarssingle
+model <- mc0remtfmastarssingle
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+
 
 
 png("18. MRA plot according to NOS quality stars in studies defining Trifecta by eGFR or IT.png", width = W_center, height = H_center)
@@ -439,3 +900,349 @@ abline(h=0, lwd = 2, lty = "dotted")
 axis(side = 2, at = seq(round(min(mc0remtfstars$yi)-1,0), round(max(mc0remtfstars$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by eGFR)
+estimates <- mc0remtfstarseGFR
+model <- mc0remtfmastarseGFR
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by IT)
+estimates <- mc0remtfstarsIT
+model <- mc0remtfmastarsIT
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+
+
+png("19. MRA plot according to max tumor diameter (pooled).png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for standardized mean of max tumor diameter in all studies (using metafor)
+# First we create the dset_diam with no N/A for standardized mean of max tumor diameter (stdm_dmax)
+dset_diam<-dset[!is.na(dset$stdm_dmax), ]
+mc0remtfdiam<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_diam, append = TRUE)
+mc0remtfmadiam<-rma(yi, vi, data = mc0remtfdiam, method = "REML", mods = ~stdm_dmax)
+diamvec<-seq(min(dset_diam$stdm_dmax), max(dset_diam$stdm_dmax), 0.1)
+predsdiam2<-predict(mc0remtfmadiam, newmods = diamvec)
+widiam2<-1/sqrt(mc0remtfdiam$vi+mc0remtfmadiam$tau2)
+sizediam2<-1+2*(widiam2 - min(widiam2)) / (max(widiam2) - min(widiam2))
+plot(mc0remtfdiam$stdm_dmax, mc0remtfdiam$yi, pch = 1, cex = sizediam2, xlim = c(min(mc0remtfdiam$stdm_dmax)-0.5, max(mc0remtfdiam$stdm_dmax)+0.5), ylim = c(min(mc0remtfdiam$yi)-1, max(mc0remtfdiam$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "Standardized mean tumor diameter (cm)", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(diamvec, predsdiam2$pred, lwd = 2, col = "red")
+lines(diamvec, predsdiam2$ci.lb, lty = "dashed")
+lines(diamvec, predsdiam2$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfdiam$yi)-1,0), round(max(mc0remtfdiam$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Pooled)
+estimates <- mc0remtfdiam
+model <- mc0remtfmadiam
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+png("20. MRA plot according to max tumor diameter in studies defining Trifecta by eGFR or IT.png", width = W_center, height = H_center)
+par(mfrow = c(2, 1), mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for standardized mean of max tumor diameter in studies defining Trifecta by eGFR (using metafor)
+mc0remtfdiameGFR<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_diam[dset_diam$definition=="Trifecta defined by eGFR",], append = TRUE)
+mc0remtfmadiameGFR<-rma(yi, vi, data = mc0remtfdiameGFR, method = "REML", mods = ~stdm_dmax)
+diamveceGFR<-seq(min(dset_diam[dset_diam$definition=="Trifecta defined by eGFR",]$stdm_dmax), max(dset_diam[dset_diam$definition=="Trifecta defined by eGFR",]$stdm_dmax), 0.1)
+predsdiameGFR2<-predict(mc0remtfmadiameGFR, newmods = diamveceGFR)
+widiameGFR2<-1/sqrt(mc0remtfdiameGFR$vi+mc0remtfmadiameGFR$tau2)
+sizediameGFR2<-1+2*(widiameGFR2 - min(widiameGFR2)) / (max(widiameGFR2) - min(widiameGFR2))
+plot(mc0remtfdiameGFR$stdm_dmax, mc0remtfdiameGFR$yi, pch = 1, cex = sizediameGFR2, xlim = c(min(mc0remtfdiam$stdm_dmax)-0.5, max(mc0remtfdiam$stdm_dmax)+0.5), ylim = c(min(mc0remtfdiam$yi)-1, max(mc0remtfdiam$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "Standardized mean tumor diameter (cm)", main = "Meta-regression of the comparative effect in studies defining Trifecta by eGFR", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(diamveceGFR, predsdiameGFR2$pred, lwd = 2, col = "coral4")
+lines(diamveceGFR, predsdiameGFR2$ci.lb, lty = "dashed")
+lines(diamveceGFR, predsdiameGFR2$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfdiam$yi)-1,0), round(max(mc0remtfdiam$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+# Meta Regression Analysis for standardized mean of max tumor diameter in studies defining Trifecta by IT (using metafor)
+mc0remtfdiamIT<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_diam[dset_diam$definition=="Trifecta defined by IT",], append = TRUE)
+mc0remtfmadiamIT<-rma(yi, vi, data = mc0remtfdiamIT, method = "REML", mods = ~stdm_dmax)
+diamvecIT<-seq(min(dset_diam[dset_diam$definition=="Trifecta defined by IT",]$stdm_dmax), max(dset_diam[dset_diam$definition=="Trifecta defined by IT",]$stdm_dmax), 0.1)
+predsdiamIT2<-predict(mc0remtfmadiamIT, newmods = diamvecIT)
+widiamIT2<-1/sqrt(mc0remtfdiamIT$vi+mc0remtfmadiamIT$tau2)
+sizediamIT2<-1+2*(widiamIT2 - min(widiamIT2)) / (max(widiamIT2) - min(widiamIT2))
+plot(mc0remtfdiamIT$stdm_dmax, mc0remtfdiamIT$yi, pch = 1, cex = sizediamIT2, xlim = c(min(mc0remtfdiam$stdm_dmax)-0.5, max(mc0remtfdiam$stdm_dmax)+0.5), ylim = c(min(mc0remtfdiam$yi)-1, max(mc0remtfdiam$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "Standardized mean tumor diameter (cm)", main = "Meta-regression of the comparative effect in studies defining Trifecta by IT", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(diamvecIT, predsdiamIT2$pred, lwd = 2, col = "coral")
+lines(diamvecIT, predsdiamIT2$ci.lb, lty = "dashed")
+lines(diamvecIT, predsdiamIT2$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfdiam$yi)-1,0), round(max(mc0remtfdiam$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by eGFR)
+estimates <- mc0remtfdiameGFR
+model <- mc0remtfmadiameGFR
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by IT)
+estimates <- mc0remtfdiamIT
+model <- mc0remtfmadiamIT
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+
+
+
+png("21. MRA plot according to R.E.N.A.L. score (pooled).png", width = W_pool, height = H_pool)
+par(mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for standardized mean R.E.N.A.L. score in all studies (using metafor)
+# First we create the dset_renal with no N/A for standardized mean R.E.N.A.L. score (stdm_RENAL)
+dset_renal<-dset[!is.na(dset$stdm_RENAL), ]
+mc0remtfrenal<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_renal, append = TRUE)
+mc0remtfmarenal<-rma(yi, vi, data = mc0remtfrenal, method = "REML", mods = ~stdm_RENAL)
+renalvec<-seq(min(dset_renal$stdm_RENAL), max(dset_renal$stdm_RENAL), 1)
+predsrenal2<-predict(mc0remtfmarenal, newmods = renalvec)
+wirenal2<-1/sqrt(mc0remtfrenal$vi+mc0remtfmarenal$tau2)
+sizerenal2<-1+2*(wirenal2 - min(wirenal2)) / (max(wirenal2) - min(wirenal2))
+plot(mc0remtfrenal$stdm_RENAL, mc0remtfrenal$yi, pch = 1, cex = sizerenal2, xlim = c(min(mc0remtfrenal$stdm_RENAL)-1, max(mc0remtfrenal$stdm_RENAL)+1), ylim = c(min(mc0remtfrenal$yi)-1, max(mc0remtfrenal$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "Standardized mean R.E.N.A.L. score", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(renalvec, predsrenal2$pred, lwd = 2, col = "red")
+lines(renalvec, predsrenal2$ci.lb, lty = "dashed")
+lines(renalvec, predsrenal2$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfrenal$yi)-1,0), round(max(mc0remtfrenal$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Pooled)
+estimates <- mc0remtfrenal
+model <- mc0remtfmarenal
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+png("22. MRA plot according to R.E.N.A.L. score in studies defining Trifecta by eGFR or IT.png", width = W_center, height = H_center)
+par(mfrow = c(2, 1), mar = c(5, 5.5, 4, 2) + 0.1)
+# Meta Regression Analysis for standardized mean R.E.N.A.L. score in studies defining Trifecta by eGFR (using metafor)
+mc0remtfrenaleGFR<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_renal[dset_renal$definition=="Trifecta defined by eGFR",], append = TRUE)
+mc0remtfmarenaleGFR<-rma(yi, vi, data = mc0remtfrenaleGFR, method = "REML", mods = ~stdm_RENAL)
+renalveceGFR<-seq(min(dset_renal[dset_renal$definition=="Trifecta defined by eGFR",]$stdm_RENAL), max(dset_renal[dset_renal$definition=="Trifecta defined by eGFR",]$stdm_RENAL), 1)
+predsrenaleGFR2<-predict(mc0remtfmarenaleGFR, newmods = renalveceGFR)
+wirenaleGFR2<-1/sqrt(mc0remtfrenaleGFR$vi+mc0remtfmarenaleGFR$tau2)
+sizerenaleGFR2<-1+2*(wirenaleGFR2 - min(wirenaleGFR2)) / (max(wirenaleGFR2) - min(wirenaleGFR2))
+plot(mc0remtfrenaleGFR$stdm_RENAL, mc0remtfrenaleGFR$yi, pch = 1, cex = sizerenaleGFR2, xlim = c(min(mc0remtfrenal$stdm_RENAL)-1, max(mc0remtfrenal$stdm_RENAL)+1), ylim = c(min(mc0remtfrenal$yi)-1, max(mc0remtfrenal$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "Standardized mean R.E.N.A.L. score", main = "Meta-regression of the comparative effect in studies defining Trifecta by eGFR", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(renalveceGFR, predsrenaleGFR2$pred, lwd = 2, col = "coral4")
+lines(renalveceGFR, predsrenaleGFR2$ci.lb, lty = "dashed")
+lines(renalveceGFR, predsrenaleGFR2$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfrenal$yi)-1,0), round(max(mc0remtfrenal$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+# Meta Regression Analysis for standardized mean R.E.N.A.L. score in studies defining Trifecta by IT (using metafor)
+mc0remtfrenalIT<-escalc(measure = "OR",ai = evexp, bi = nonevexp, ci = evctrl, di = nonevctrl, data = dset_renal[dset_renal$definition=="Trifecta defined by IT",], append = TRUE)
+mc0remtfmarenalIT<-rma(yi, vi, data = mc0remtfrenalIT, method = "REML", mods = ~stdm_RENAL)
+renalvecIT<-seq(min(dset_renal[dset_renal$definition=="Trifecta defined by IT",]$stdm_RENAL), max(dset_renal[dset_renal$definition=="Trifecta defined by IT",]$stdm_RENAL), 1)
+predsrenalIT2<-predict(mc0remtfmarenalIT, newmods = renalvecIT)
+wirenalIT2<-1/sqrt(mc0remtfrenalIT$vi+mc0remtfmarenalIT$tau2)
+sizerenalIT2<-1+2*(wirenalIT2 - min(wirenalIT2)) / (max(wirenalIT2) - min(wirenalIT2))
+plot(mc0remtfrenalIT$stdm_RENAL, mc0remtfrenalIT$yi, pch = 1, cex = sizerenalIT2, xlim = c(min(mc0remtfrenal$stdm_RENAL)-1, max(mc0remtfrenal$stdm_RENAL)+1), ylim = c(min(mc0remtfrenal$yi)-1, max(mc0remtfrenal$yi)+1), ylab = "log Odds Ratio in Trifecta achievement rates (RPN / RAPN vs. OPN)", xlab = "Standardized mean R.E.N.A.L. score", main = "Meta-regression of the comparative effect in studies defining Trifecta by IT", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(renalvecIT, predsrenalIT2$pred, lwd = 2, col = "coral")
+lines(renalvecIT, predsrenalIT2$ci.lb, lty = "dashed")
+lines(renalvecIT, predsrenalIT2$ci.ub, lty = "dashed")
+abline(h=0, lwd = 2, lty = "dotted")
+axis(side = 2, at = seq(round(min(mc0remtfrenal$yi)-1,0), round(max(mc0remtfrenal$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 1, cex.axis = 1.5)
+dev.off()
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by eGFR)
+estimates <- mc0remtfrenaleGFR
+model <- mc0remtfmarenaleGFR
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+# Influence diagnostics – Leave-one-out & Cook’s distance (Trifecta by IT)
+estimates <- mc0remtfrenalIT
+model <- mc0remtfmarenalIT
+inf_res <- influence(model)
+cook_vals <- inf_res$inf$cook.d
+# Threshold for Cook's distance
+threshold <- 1
+# Study count
+n_total <- length(cook_vals)
+n_influential <- 0
+# Study check
+for (i in 1:n_total) {
+  study_label <- if (!is.null(estimates$study)) estimates$study[i] else paste("Study", i)
+  cook_val <- cook_vals[i]
+  
+  if (cook_val > threshold) {
+    cat(sprintf("⚠️  %s has high influence: Cook's distance = %.3f → [POTENTIALLY INFLUENTIAL]\n", study_label, cook_val))
+    n_influential <- n_influential + 1
+  } else {
+    cat(sprintf("✅  %s is stable: Cook's distance = %.3f\n", study_label, cook_val))
+  }
+}
+# Summary
+n_stable <- n_total - n_influential
+cook_stability <- 100 * n_stable / n_total
+
+cat("\nSummary:\n")
+cat(sprintf("%d out of %d studies were stable (Cook's distance ≤ %.1f)\n", 
+            n_stable, n_total, threshold))
+cat(sprintf("Cook Stability = %.1f%%\n", cook_stability))
+
