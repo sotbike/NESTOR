@@ -1,0 +1,79 @@
+# Load necessary library
+library(ggplot2)
+library(Metrics)
+
+# Step 1: Define domain and theoretical function
+egfr_vals <- seq(46, 120, by = 0.1)
+md <- 2.5
+true_function <- md / (egfr_vals - 45) * 100
+
+# Step 2: Fit exponential model
+exp_model <- nls(true_function ~ a * exp(b * egfr_vals), start = list(a = 1, b = -0.02))
+exp_fit <- predict(exp_model)
+
+# Step 3: Fit 2nd-degree polynomial model
+poly_model <- lm(true_function ~ poly(egfr_vals, 2, raw = TRUE))
+poly_fit <- predict(poly_model)
+
+# Step 4: Create data frame
+plot_df <- data.frame(
+  eGFR = egfr_vals,
+  TrueFunction = true_function,
+  ExponentialFit = exp_fit,
+  PolynomialFit = poly_fit
+)
+
+# Step 5: CKD stage zones based on KDIGO
+ckd_zones <- data.frame(
+  xmin = c(90, 60, 45),
+  xmax = c(120, 89.9, 59.9),
+  Stage = factor(c("Normal", "CKD II", "CKD IIIa"),
+                 levels = c("Normal", "CKD II", "CKD IIIa"))
+)
+
+# Step 6: Plot
+ggplot() +
+  # Background CKD stage shading
+  geom_rect(data = ckd_zones,
+            aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = Stage),
+            alpha = 0.25) +
+  
+  # True function
+  geom_line(data = plot_df, aes(x = eGFR, y = TrueFunction, color = "True Function", linetype = "True Function"), size = 1.0) +
+  
+  # Exponential fit
+  geom_line(data = plot_df, aes(x = eGFR, y = ExponentialFit, color = "Exponential Fit", linetype = "Exponential Fit"), size = 0.8) +
+  
+  # Polynomial fit
+  geom_line(data = plot_df, aes(x = eGFR, y = PolynomialFit, color = "Polynomial Fit", linetype = "Polynomial Fit"), size = 0.8) +
+  
+  # Customize axes
+  scale_x_reverse(breaks = seq(120, 45, by = -5)) +
+  scale_y_continuous(name = "Relative Weight of MD (%)") +
+  
+  # Manual color and line type settings
+  scale_color_manual(name = "Model",
+                     values = c("True Function" = "black",
+                                "Exponential Fit" = "red",
+                                "Polynomial Fit" = "blue")) +
+  scale_linetype_manual(name = "Model",
+                        values = c("True Function" = "solid",
+                                   "Exponential Fit" = "dashed",
+                                   "Polynomial Fit" = "dashed")) +
+  
+  # CKD stage fill colors
+  scale_fill_manual(values = c("Normal" = "lightblue",
+                               "CKD II" = "orange",
+                               "CKD IIIa" = "red")) +
+  
+  # Labels and theme
+  labs(
+    x = "Preoperative eGFR (ml/min/1.73m²)",
+    title = "Relative Clinical Significance of a 2.5-unit MD Across eGFR Spectrum"
+  ) +
+  
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "left",
+    plot.title = element_text(hjust = 0.5)
+  )
