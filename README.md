@@ -1,6 +1,6 @@
 # Trifecta rates & comparative analysis of severe - mild complications, PSM, ischemia duration, and postoperative renal function after RPN/RAPN vs. OPN
 
-Study title: Comparative investigation of therapeutic efficacy in tumor resection between robotic and open partial nephrectomy: A meta-analysis supplemented by time-series and quality-based meta-regression.
+Study title: Differential Therapeutic Efficacy of Robotic vs. Open Partial Nephrectomy in Tumor Resection: A Meta-Analysis with Time-Series and Quality-Based Meta-Regression.
 
 Computational procedure: Variables were divided into primary and secondary, and then analyzed by grouping studies for each outcome.
 
@@ -20,10 +20,10 @@ Secondary:
 
 Included items: Individual study data (“.csv” files) & R code (“.txt” files).
 
-Meta-analysis (MA): R code is included for the implementation of a random effects model with the Hartung & Knapp modification for MD, and Mantel–Haenszel method for OR; subgroups: trifecta definitions according IT & eGFR, studies published before & after 2018, studies with & without patient matching, mulicenter & single-center studies, stratification of studies according to ROBINS-I tool (Low - Moderate - Serious).
+Meta-analysis (MA): R code is included for the implementation of a random effects model with the Hartung & Knapp modification for mean differences (MD), and the Mantel–Haenszel method for odds ratios (OR). Subgroup analyses were conducted based on: trifecta definitions according to ischemia time (IT) and estimated glomerular filtration rate (eGFR), studies published before and after 2018, studies with and without patient matching, multicenter versus single-center studies, and stratification according to the ROBINS-I tool (Low – Moderate – Serious). Publication bias was assessed using Egger’s test, while small-study effects were examined according to the method proposed by Schwarzer.
 
-Meta-regression analysis (MRA): R code is included for the implementation of a random effects model, using the restricted maximum likelihood (REML) estimation; moderators: year of publication, number of quality stars assigned according to the Newcastle - Ottawa Scale (NOS).
+Meta-regression analysis (MRA): R code is included for the implementation of a random effects model using the restricted maximum likelihood (REML) estimation method. The model incorporates the following moderators: year of publication, number of quality stars assigned according to the Newcastle-Ottawa Scale (NOS), mean tumor size, and average R.E.N.A.L. score. Internal validation was performed using Cook’s distance analysis (threshold = 1) to identify influential studies.
 
-Sensitivity analysis (SA): As SA we defined the exclusion of studies with a CI95% range greater than 2 SD of the original study set CI95% ranges.
+Sensitivity analysis (SA): The first level of the SA includes studies with increased precision in their reported outcomes (exclusion of studies with a 95% confidence interval range greater than 2 standard deviations from the original study set’s 95% CI ranges), whereas the second level of the SA includes studies in which the compared patient populations do not differ in baseline characteristics.
 
 Instructions (for the replication of results): Create a desktop folder named “Data” and save the “.csv” files with original data, ensuring to specify the correct absolute/relative paths for your system. The code generates desktop folders with relevant names for storing derived data and plots.
