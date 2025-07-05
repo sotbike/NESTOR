@@ -1,21 +1,38 @@
-# Load necessary library
+# Load necessary libraries
 library(ggplot2)
 library(Metrics)
 
-# Step 1: Define domain and theoretical function
+# Define domain and the theoretical ("true") function
 egfr_vals <- seq(46, 120, by = 0.1)
 md <- 2.5
 true_function <- md / (egfr_vals - 45) * 100
 
-# Step 2: Fit exponential model
+# Fit exponential model
 exp_model <- nls(true_function ~ a * exp(b * egfr_vals), start = list(a = 1, b = -0.02))
 exp_fit <- predict(exp_model)
 
-# Step 3: Fit 2nd-degree polynomial model
+# Fit second-degree polynomial model
 poly_model <- lm(true_function ~ poly(egfr_vals, 2, raw = TRUE))
 poly_fit <- predict(poly_model)
 
-# Step 4: Create data frame
+# Calculate R² and MSE for exponential model
+r2_exp <- 1 - sum((true_function - exp_fit)^2) / sum((true_function - mean(true_function))^2)
+mse_exp <- mean((true_function - exp_fit)^2)
+
+# Calculate R² and MSE for polynomial model
+r2_poly <- 1 - sum((true_function - poly_fit)^2) / sum((true_function - mean(true_function))^2)
+mse_poly <- mean((true_function - poly_fit)^2)
+
+# Display results
+cat("Exponential model:\n")
+cat("  R² =", round(r2_exp, 3), "\n")
+cat("  MSE =", round(mse_exp, 2), "\n\n")
+
+cat("Polynomial model:\n")
+cat("  R² =", round(r2_poly, 3), "\n")
+cat("  MSE =", round(mse_poly, 2), "\n")
+
+# Create data frame
 plot_df <- data.frame(
   eGFR = egfr_vals,
   TrueFunction = true_function,
@@ -23,7 +40,7 @@ plot_df <- data.frame(
   PolynomialFit = poly_fit
 )
 
-# Step 5: CKD stage zones based on KDIGO
+# CKD stage zones based on KDIGO
 ckd_zones <- data.frame(
   xmin = c(90, 60, 45),
   xmax = c(120, 89.9, 59.9),
@@ -31,7 +48,7 @@ ckd_zones <- data.frame(
                  levels = c("Normal", "CKD II", "CKD IIIa"))
 )
 
-# Step 6: Plot
+# Plot
 ggplot() +
   # Background CKD stage shading
   geom_rect(data = ckd_zones,
