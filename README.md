@@ -1,7 +1,6 @@
 # Trifecta rates & comparative analysis of severe - mild complications, PSM, ischemia duration, and postoperative renal function after RPN/RAPN vs. OPN
 
-Study title: Differential Therapeutic Efficacy of Robotic vs. Open Partial Nephrectomy in Tumor Resection: A Meta-Analysis with Time-Series and Quality-Based Meta-Regression.
-
+Study title: Differential Therapeutic Efficacy of Robotic vs. Open Partial Nephrectomy in Tumor Resection: A Meta-Analysis with Stratified Multidimensional Meta-Regression.
 Computational procedure: Variables were divided into primary and secondary, and then analyzed by grouping studies for each outcome.
 
 Outcomes: 
